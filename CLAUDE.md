@@ -9,21 +9,25 @@ Binary-only public mirror for `sac`, the SeaArt CLI.
 3. Install, authenticate, and verify in one command:
 
 ```bash
-bash install.sh && SAC_BIN="$(cat .sac-bin-path)" && "$SAC_BIN" auth login --api-key sa-xxxxxxxx && "$SAC_BIN" auth status --output json
+bash install.sh && SAC_BIN="$(cat .sac-bin-path)" && "$SAC_BIN" auth login --api-key sa-xxxxxxxx --base-url https://gateway.example.com && "$SAC_BIN" auth status --output json
 ```
 
-Replace `sa-xxxxxxxx` with the actual API key. Expected final output:
+Replace `sa-xxxxxxxx` with the actual API key and `https://gateway.example.com` with the service gateway URL. Expected final output:
 
 ```json
 {
   "authenticated": true,
   "key": "sa-a...xxxx",
   "source": "config file",
+  "gateway": {
+    "base_url": "https://gateway.example.com",
+    "source": "config file"
+  },
   "config": "/root/.sac/config.json"
 }
 ```
 
-If `"authenticated": false`, re-run `"$SAC_BIN" auth login --api-key sa-xxxxxxxx`.
+If `"authenticated": false`, re-run `"$SAC_BIN" auth login --api-key sa-xxxxxxxx --base-url https://gateway.example.com`.
 
 In all subsequent shell commands, use the absolute path to avoid PATH uncertainty:
 
@@ -55,6 +59,8 @@ SAC_BIN="$(cat .sac-bin-path)"
 
 `sac auth login` validates the key before saving it:
 
+- `--base-url <url>` is required unless `base_url` is already configured; `auth login --base-url` persists the normalized gateway root
+
 - `401/403` → key is invalid, login fails
 - `404` or `Task not found` body → key accepted (probe task simply does not exist)
 - network / timeout / `5xx` → validation inconclusive, login fails
@@ -85,6 +91,7 @@ Concretely:
 - Never run bare `sac chat` from automation — always pass `--message "..."`; without `--message` in a non-TTY context it exits with code `2`
 - For long-running generation tasks, prefer `--async` to get the task ID immediately, then poll with `sac generate task <id> --output json`
 - Pass `SAC_API_KEY` as an environment variable when `~/.sac/config.json` may not be present
+- Pass `SAC_BASE_URL` as an environment variable when `base_url` is not persisted
 - `SKILL.md` is the authoritative command contract — do not guess flags or output shape from examples alone
 
 ## Claude Code Hooks

@@ -1,7 +1,7 @@
 {
-  "version": "0.1.0",
-  "tag": "v0.1.0",
-  "source_branch": "main",
-  "source_commit": "1eb97e18360cb63025e491116828f301146b5f0d",
+  "version": "0.1.1",
+  "tag": "v0.1.1",
+  "source_branch": "seaverse-mirror-v0.1.1-temp",
+  "source_commit": "3767eb39c5870475c4d99c83768bb99e63fb2a5f",
   "github_repo": "SeaVerseAI/sea-cli"
 }

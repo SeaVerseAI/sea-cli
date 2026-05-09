@@ -33,15 +33,18 @@ SAC_BIN="$(cat .sac-bin-path)"
 **Step 2 — Authenticate** (required before any generate or chat command):
 
 ```bash
-sac auth login --api-key sa-xxxxxxxx
+sac auth login --api-key sa-xxxxxxxx --base-url https://gateway.example.com
 # or export SAC_API_KEY=sa-xxxxxxxx
+# and export SAC_BASE_URL=https://gateway.example.com
 sac auth status --output json
 ```
+
+The public mirror does not hard-code a gateway URL. Replace `https://gateway.example.com` with the service gateway URL you were given.
 
 Expected output when authenticated:
 
 ```json
-{ "authenticated": true, "key": "sa-a...xxxx", "source": "config file" }
+{ "authenticated": true, "key": "sa-a...xxxx", "source": "config file", "gateway": { "base_url": "https://gateway.example.com", "source": "config file" } }
 ```
 
 **Step 3 — Use the agent baseline for all structured commands:**
@@ -83,32 +86,32 @@ SAC_INSTALL_DIR=/usr/local/bin bash install.sh
 #### macOS Apple Silicon
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.0/sac-0.1.0-darwin-arm64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-darwin-arm64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### macOS Intel
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.0/sac-0.1.0-darwin-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-darwin-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Linux x64
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.0/sac-0.1.0-linux-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-linux-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Windows x64
 
-Download `sac-0.1.0-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
+Download `sac-0.1.1-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
 
 ### Authentication
 
 ```bash
-sac auth login --api-key sa-xxxxxxxx
+sac auth login --api-key sa-xxxxxxxx --base-url https://gateway.example.com
 sac auth status --check
 ```
 
@@ -126,7 +129,7 @@ sac chat --message "Hello"
 
 ## Mirror Metadata
 
-Current release: [`v0.1.0`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.0)
+Current release: [`v0.1.1`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.1)
 
 | File | Contents |
 |---|---|
