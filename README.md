@@ -86,27 +86,27 @@ SAC_INSTALL_DIR=/usr/local/bin bash install.sh
 #### macOS Apple Silicon
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-darwin-arm64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-darwin-arm64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### macOS Intel
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-darwin-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-darwin-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Linux x64
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.1/sac-0.1.1-linux-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-linux-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Windows x64
 
-Download `sac-0.1.1-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
+Download `sac-0.1.2-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
 
 ### Authentication
 
@@ -129,7 +129,7 @@ sac chat --message "Hello"
 
 ## Mirror Metadata
 
-Current release: [`v0.1.1`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.1)
+Current release: [`v0.1.2`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.2)
 
 | File | Contents |
 |---|---|
