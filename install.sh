@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="SeaVerseAI/sea-cli"
-VERSION="0.1.2"
+VERSION="0.1.3"
 TAG="v${VERSION}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

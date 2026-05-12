@@ -155,11 +155,21 @@ sac --non-interactive --quiet --output json <command> [flags]
 
 ## Model Discovery Workflow
 
-**When the user asks about available models, or wants to call a specific model, always follow this workflow — do not guess model names or flags:**
+**Non-negotiable rule for agents:** `generate image`, `generate video`, `generate audio`, and `generate 3d` only cover built-in shortcut models. If the user names a model that is not clearly documented in this SKILL, if `--model` is rejected as unknown, or if you are unsure which flags a model accepts, do **not** keep retrying the generate shortcut and do **not** invent flags. Use the gateway discovery path.
+
+**When the user asks about available models, wants to call a specific model, or references a newly added / gateway-only model, always follow this workflow:**
 
 1. `sac model search` — discover models by type, provider, or modality
 2. `sac model get <model-id>` — inspect the Body Template and full field reference (capture silently into a variable)
 3. `sac generate submit --body-json '...'` — call the model with exact parameters from the template
+
+Decision rules:
+
+- Known built-in model + documented flags in this SKILL: direct `sac generate image/video/audio/3d` is allowed.
+- Unknown model name, provider-only request, or model found through search: use `sac model search` -> `sac model get` -> `sac generate submit`.
+- `--list-models` only lists local built-in shortcuts; it is not the complete gateway model catalog.
+- `model get` output is authoritative for gateway-only models. Fill the Body Template placeholders exactly and preserve required wrapper fields such as `model`, `dash_scope`, `moderation`, `input`, and `metadata`.
+- If `model search --query <name>` returns close matches, pick the exact `name` from JSON results; never transform names by guesswork.
 
 ```bash
 # Example: user wants an image-to-video model from Kling

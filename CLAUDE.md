@@ -94,6 +94,14 @@ Concretely:
 - Pass `SAC_BASE_URL` as an environment variable when `base_url` is not persisted
 - `SKILL.md` is the authoritative command contract — do not guess flags or output shape from examples alone
 
+### Model discovery rules
+
+- Treat `generate image`, `generate video`, `generate audio`, and `generate 3d` as built-in shortcuts only.
+- If the user asks for a model that is not clearly listed in `SKILL.md`, or a generate shortcut reports `Unknown built-in ... model`, immediately switch to `sac model search --query <name> --output json`.
+- After search, run `sac model get <exact-model-id>` and build the request from its Body Template.
+- Call gateway-only or newly added models with `sac generate submit --body-json '...'`; do not retry the shortcut command with guessed flags.
+- `--list-models` is only a local shortcut list, not the full gateway catalog.
+
 ## Claude Code Hooks
 
 Hooks run in the environment Claude Code inherits — `PATH` mutations from `source .sac-env` do not carry into hook processes. Always use the absolute path from `.sac-bin-path` in hook commands:

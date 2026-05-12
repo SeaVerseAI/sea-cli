@@ -58,6 +58,8 @@ Rules:
 - `--output json` is rejected by `chat --stream`, interactive `chat`, `generate task --output-only-url`, and `update`
 - If `sac` is not on `PATH`, use `"$(cat .sac-bin-path)"` instead
 - Full flag tables, output shapes, and model lists are in `SKILL.md`
+- If a requested model is not a documented built-in shortcut, use `sac model search --query <name> --output json`, then `sac model get <model-id>`, then `sac generate submit --body-json '...'`
+- `--list-models` is only the local shortcut list; `model search` is the gateway catalog
 
 If you are Claude Code, read `CLAUDE.md` after this for hooks guidance and Claude-specific operating rules.
 
@@ -86,27 +88,27 @@ SAC_INSTALL_DIR=/usr/local/bin bash install.sh
 #### macOS Apple Silicon
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-darwin-arm64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.3/sac-0.1.3-darwin-arm64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### macOS Intel
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-darwin-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.3/sac-0.1.3-darwin-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Linux x64
 
 ```bash
-curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.2/sac-0.1.2-linux-x64
+curl -L -o sac https://github.com/SeaVerseAI/sea-cli/releases/download/v0.1.3/sac-0.1.3-linux-x64
 chmod +x sac && mkdir -p "$HOME/.local/bin" && mv sac "$HOME/.local/bin/sac"
 ```
 
 #### Windows x64
 
-Download `sac-0.1.2-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
+Download `sac-0.1.3-windows-x64.exe` from the release page and place it somewhere in your `PATH`.
 
 ### Authentication
 
@@ -129,7 +131,7 @@ sac chat --message "Hello"
 
 ## Mirror Metadata
 
-Current release: [`v0.1.2`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.2)
+Current release: [`v0.1.3`](https://github.com/SeaVerseAI/sea-cli/releases/tag/v0.1.3)
 
 | File | Contents |
 |---|---|
