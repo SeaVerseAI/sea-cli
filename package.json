@@ -1,0 +1,59 @@
+{
+  "name": "sac-cli",
+  "version": "0.1.4",
+  "description": "SeaArt CLI (sac) for AI generation, model discovery, and task management",
+  "type": "module",
+  "license": "MIT",
+  "author": "SEA",
+  "homepage": "https://github.com/SeaVerseAI/sea-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeaVerseAI/sea-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SeaVerseAI/sea-cli/issues"
+  },
+  "keywords": [
+    "seaart",
+    "sac",
+    "cli",
+    "ai",
+    "generation",
+    "image",
+    "video",
+    "audio",
+    "3d"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "sac": "dist/sac.mjs"
+  },
+  "files": [
+    "dist/sac.mjs"
+  ],
+  "scripts": {
+    "build": "node build.ts",
+    "lint": "eslint src/ test/ build.ts",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "node build.ts --test && node --test 'dist/test/**/*.test.js'",
+    "test:e2e": "node build.ts --e2e && node dist/test/integration/all-models.js",
+    "test:e2e:async": "node build.ts --e2e && TEST_ASYNC=1 node dist/test/integration/all-models.js"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@clack/prompts": "^0.7.0",
+    "@eslint/js": "^10.0.1",
+    "@types/bun": "latest",
+    "esbuild": "^0.25.0",
+    "eslint": "^10.2.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.58.2",
+    "undici": "^8.1.0"
+  }
+}
