@@ -1,6 +1,6 @@
 {
   "name": "sac-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "SeaArt CLI (sac) for AI generation, model discovery, and task management",
   "type": "module",
   "license": "MIT",

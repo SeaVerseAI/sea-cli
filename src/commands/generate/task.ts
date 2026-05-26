@@ -4,10 +4,11 @@ import { taskEndpoint } from '../../client/endpoints';
 import { formatOutput, detectOutputFormat } from '../../output/formatter';
 import { CLIError } from '../../errors/base';
 import { ExitCode } from '../../errors/codes';
-import { pollTask } from '../../polling/poll';
+import { pollTask, type TaskResponse } from '../../polling/poll';
 import type { Config } from '../../config/schema';
 import type { GlobalFlags } from '../../types/flags';
-import type { TaskResponse } from '../../polling/poll';
+import { scanGeneratedUrls } from '../content/safety';
+import { extractUrls } from './results';
 
 export default defineCommand({
   name: 'generate task',
@@ -18,6 +19,7 @@ export default defineCommand({
     { flag: '--interval <s>',     description: 'Poll interval in seconds (default: 3, requires --wait)', type: 'number' },
     { flag: '--timeout <s>',      description: 'Max wait time in seconds (default: global --timeout, requires --wait)', type: 'number' },
     { flag: '--output-only-url',  description: 'Print only image URL(s), one per line (suppresses JSON envelope)', type: 'boolean' },
+    { flag: '--content-safety',   description: 'Scan output URL(s) when the task is completed', type: 'boolean' },
   ],
   examples: [
     'sac generate task abc123',
@@ -44,6 +46,14 @@ export default defineCommand({
       );
     }
 
+    if (outputOnlyUrl && flags.contentSafety === true) {
+      throw new CLIError(
+        '--content-safety cannot be combined with --output-only-url.',
+        ExitCode.USAGE,
+        'Omit --output-only-url to include structured safety results.',
+      );
+    }
+
     if (flags.wait) {
       // Poll until completed / failed / timeout
       const intervalSec = flags.interval as number | undefined;
@@ -51,15 +61,17 @@ export default defineCommand({
 
       const result = await pollTask(config, { taskId, intervalSec, timeoutSec });
 
+      const urls = extractUrls(result);
+      const safety = flags.contentSafety === true ? await scanGeneratedUrls(config, urls) : undefined;
+
       if (outputOnlyUrl) {
-        const urls = extractUrls(result);
         if (urls.length > 0) {
           console.log(urls.join('\n'));
         } else {
           console.log(formatOutput(result, format));
         }
       } else {
-        console.log(formatOutput(result, format));
+        console.log(formatOutput(safety ? { ...result, safety } : result, format));
       }
       return;
     }
@@ -70,24 +82,16 @@ export default defineCommand({
       method: 'GET',
     });
 
+    const urls = extractUrls(data);
+    const safety = flags.contentSafety === true ? await scanGeneratedUrls(config, urls) : undefined;
+
     if (outputOnlyUrl) {
-      const urls = extractUrls(data);
       if (urls.length > 0) {
         console.log(urls.join('\n'));
         return;
       }
     }
 
-    console.log(formatOutput(data, format));
+    console.log(formatOutput(safety ? { ...data, safety } : data, format));
   },
 });
-
-function extractUrls(data: TaskResponse): string[] {
-  const urls: string[] = [];
-  for (const out of data.output ?? []) {
-    for (const c of out.content ?? []) {
-      if (c.url) urls.push(c.url);
-    }
-  }
-  return urls;
-}

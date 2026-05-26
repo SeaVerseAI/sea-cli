@@ -19,6 +19,7 @@ import modelGet      from './commands/model/get';
 import update        from './commands/update/index';
 import configShow    from './commands/config/show';
 import configSet     from './commands/config/set';
+import contentSafety from './commands/content/safety';
 import { modelsByCategory } from './commands/generate/image';
 
 export type { Command, OptionDef } from './command';
@@ -179,6 +180,7 @@ ${b('Commands:')}
   ${a('generate 3d')}         ${d('Generate 3D models (volces, etc.)')}
   ${a('generate task')}       ${d('Query generation task status')}
   ${a('generate submit')}     ${d('Submit a raw body and poll for results')}
+  ${a('content-safety')}      ${d('Scan an image or video URL for content safety')}
   ${a('model search')}        ${d('Search available models from the gateway skill index')}
   ${a('model get')}           ${d('Get model SKILL.md from the gateway skill index')}
   ${a('chat')}                ${d('Chat with an LLM model')}
@@ -279,6 +281,7 @@ export const registry = new CommandRegistry({
   'generate 3d':      generate3d,
   'generate task':    generateTask,
   'generate submit':  generateSubmit,
+  'content-safety':   contentSafety,
   'model search':     modelSearch,
   'model get':        modelGet,
   'chat':             chat,

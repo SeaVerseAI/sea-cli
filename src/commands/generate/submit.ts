@@ -4,12 +4,10 @@ import { ExitCode } from '../../errors/codes';
 import { requestJson } from '../../client/http';
 import { generationEndpoint } from '../../client/endpoints';
 import { pollTask } from '../../polling/poll';
-import { downloadFile } from '../../files/download';
 import { formatOutput, detectOutputFormat } from '../../output/formatter';
-import { mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
 import type { Config } from '../../config/schema';
 import type { GlobalFlags } from '../../types/flags';
+import { printGenerationResult, rejectAsyncContentSafety } from './results';
 
 interface GenerationCreateResponse {
   id: string;
@@ -25,6 +23,7 @@ export default defineCommand({
     { flag: '--body-json <json>', description: 'Complete request body as a JSON string', required: true },
     { flag: '--out-dir <dir>',    description: 'Download output files to this directory' },
     { flag: '--out-prefix <pfx>', description: 'Filename prefix for downloads (default: output)' },
+    { flag: '--content-safety',   description: 'Scan generated output URL(s) after polling completes', type: 'boolean' },
     { flag: '--async',            description: 'Return task ID immediately without polling', type: 'boolean' },
   ],
   examples: [
@@ -46,6 +45,8 @@ export default defineCommand({
     } catch {
       throw new CLIError('--body-json is not valid JSON.', ExitCode.USAGE);
     }
+
+    rejectAsyncContentSafety(flags, config);
 
     if (config.dryRun) {
       console.log(formatOutput({ request: body }, format));
@@ -71,37 +72,15 @@ export default defineCommand({
     }
 
     const result = await pollTask(config, { taskId });
-
-    const urls: string[] = [];
-    for (const out of result.output ?? []) {
-      for (const c of (out.content ?? []) as Array<{ url?: string }>) {
-        if (c.url) urls.push(c.url);
-      }
-    }
-
-    if (urls.length === 0) {
-      console.log(formatOutput(result, format));
-      return;
-    }
-
-    if (flags.outDir) {
-      const outDir = flags.outDir as string;
-      if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-
-      const prefix = (flags.outPrefix as string) || 'output';
-      const saved: string[] = [];
-
-      for (let i = 0; i < urls.length; i++) {
-        const ext = urls[i]!.includes('.png') ? 'png' : 'webp';
-        const filename = `${prefix}_${String(i + 1).padStart(3, '0')}.${ext}`;
-        const destPath = join(outDir, filename);
-        await downloadFile(urls[i]!, destPath, { quiet: config.quiet });
-        saved.push(destPath);
-      }
-
-      console.log(formatOutput({ task_id: taskId, saved }, format));
-    } else {
-      console.log(formatOutput({ task_id: taskId, urls }, format));
-    }
+    await printGenerationResult(config, flags, format, {
+      taskId,
+      result,
+      defaultPrefix: 'output',
+      rawUrlsInQuietText: false,
+      detectExtension: (url) => {
+        const match = url.match(/\.([a-z0-9]+)(?:[?#].*)?$/i);
+        return match?.[1]?.toLowerCase() ?? 'webp';
+      },
+    });
   },
 });

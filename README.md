@@ -119,6 +119,7 @@ sac generate image --prompt "国风山水画" --model tencent_image_creation_3 -
 sac generate image --prompt "text" --n 2               # Generate 2 images
 sac generate image --prompt "text" --width 1024 --height 1024
 sac generate image --prompt "text" --out-dir ./output  # Download to disk
+sac generate image --prompt "text" --content-safety    # Scan generated URL(s) after completion
 sac generate image --prompt "text" --async             # Return task ID immediately
 sac generate image --list-models                       # List all available models
 sac generate image --list-models --provider volces     # Filter by provider
@@ -143,6 +144,7 @@ Built-in default model: `volces_seedream_4_5`. If `default_image_model` is confi
 ```bash
 sac generate video [--model <id>] [--prompt "text"]    # Built-in default: volces_seedance_1_5_pro
 sac generate video --prompt "text" --model vidu_q3_pro --async
+sac generate video --prompt "text" --content-safety
 sac generate video --prompt "text" --model kling_v3 --aspect-ratio 16:9
 # Image-to-video (requires --image-url)
 sac generate video --prompt "car drives away" --model kling_v3_i2v --image-url https://example.com/img.webp
@@ -253,7 +255,20 @@ Built-in defaults only apply to unambiguous Tripo3D flows: prompt-only => `tripo
 sac generate task <task-id>                  # Query task status
 sac generate task <task-id> --output json    # JSON output
 sac generate task <task-id> --output-only-url  # Raw URL lines (text only)
+sac generate task <task-id> --wait --content-safety  # Wait, then scan output URL(s)
 ```
+
+### content-safety
+
+Scan an existing image or video URL directly through the gateway content safety service:
+
+```bash
+sac content-safety --url https://example.com/image.webp
+sac content-safety --url https://example.com/video.mp4 --video --duration 8
+sac content-safety --url https://example.com/image.webp --risk-type porn
+```
+
+Image/video generation commands support `--content-safety` for post-completion scanning of generated output URL(s). It is best-effort: scan failures or timeouts are returned in `safety` and do not block normal `urls` / `saved` output. Generated-output scans use a short timeout and `--content-safety` cannot be combined with `--async`; scan later with `sac generate task <task-id> --wait --content-safety`.
 
 ### chat
 
@@ -301,7 +316,7 @@ sac config set --key timeout --value 600
 | `--async` | Return task ID immediately without polling |
 | `--no-color` | Disable ANSI colors |
 
-Command-specific constraints still apply. For example, `chat --stream`, interactive `chat`, and `generate task --output-only-url` cannot be combined with `--output json`, and `update` only supports text output.
+Command-specific constraints still apply. For example, `chat --stream`, interactive `chat`, and `generate task --output-only-url` cannot be combined with `--output json`; `--content-safety` cannot be combined with `--async` or `generate task --output-only-url`; and `update` only supports text output.
 
 ## Output Format
 

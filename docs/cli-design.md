@@ -15,8 +15,9 @@ sac
 │   ├── status
 │   └── logout
 ├── generate
-│   ├── image        --prompt <text> [--model] [--n] [--width] [--height] [--steps] [--seed] [--cfg-scale] [--negative-prompt] [--image-url] [--action] [--out-dir] [--out-prefix] [--async]
-│   └── task         <task-id> [--wait] [--interval <s>] [--timeout <s>] [--output-only-url]
+│   ├── image        --prompt <text> [--model] [--out-dir] [--content-safety] [--async]
+│   └── task         <task-id> [--wait] [--interval <s>] [--timeout <s>] [--output-only-url] [--content-safety]
+├── content-safety   --url <url> [--image|--video] [--risk-type <type>] [--duration <s>]
 ├── chat             --message <text> [--model] [--system] [--messages-file] [--max-tokens] [--temperature] [--stream]
 │   ├── models       [--filter]
 │   └── set-model    --model <id>
@@ -46,6 +47,16 @@ GET /model/v1/generation/task/{id}   (poll every 3s)
 completed → output[].content[].url   (image URLs)
 ```
 
+Optional content safety scan:
+
+```
+POST /model/v1/image/scan
+  body: { uri, is_video, risk_types?, detected_age?, duration? }
+  → scanner result + usage
+```
+
+Generation-triggered content safety is best-effort and uses a short timeout. Scan failures are attached to `safety[]` with `status: "failed"` and must not block normal task URL output. It is intended for image/video outputs; known audio/model archive URLs are not sent to the scanner.
+
 ## Async Image Generation
 
 `generate image --async` submits the task and returns immediately with the task ID:
@@ -60,6 +71,9 @@ sac generate task abc123 --wait
 
 # Print only image URLs on completion
 sac generate task abc123 --wait --output-only-url
+
+# Wait for completion and scan generated output URLs
+sac generate task abc123 --wait --content-safety
 
 # Single-shot status check (no polling)
 sac generate task abc123

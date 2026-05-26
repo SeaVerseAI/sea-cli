@@ -4,15 +4,13 @@ import { ExitCode } from '../../errors/codes';
 import { requestJson } from '../../client/http';
 import { generationEndpoint } from '../../client/endpoints';
 import { pollTask } from '../../polling/poll';
-import { downloadFile } from '../../files/download';
 import { formatOutput, detectOutputFormat } from '../../output/formatter';
 import { isInteractive } from '../../utils/env';
 import { promptText, failIfMissing } from '../../utils/prompt';
-import { mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
 import type { Config } from '../../config/schema';
 import type { GlobalFlags } from '../../types/flags';
 import { buildProviderModelsList } from './model-list';
+import { printGenerationResult, rejectAsyncContentSafety } from './results';
 
 // Importing registry triggers provider registration side-effects
 import { getProvider, modelsByProvider } from './providers/registry';
@@ -147,6 +145,7 @@ export default defineCommand({
     // Output
     { flag: '--out-dir <dir>',             description: 'Download generated files to this directory' },
     { flag: '--out-prefix <prefix>',       description: 'Filename prefix for downloads (default: video)' },
+    { flag: '--content-safety',            description: 'Scan generated output URL(s) after polling completes', type: 'boolean' },
     { flag: '--async',                     description: 'Return task ID immediately without polling', type: 'boolean' },
   ],
   examples: [
@@ -229,6 +228,7 @@ export default defineCommand({
     }
 
     const body = providerDef.buildBody(model, prompt ?? '', flags);
+    rejectAsyncContentSafety(flags, config);
 
     if (config.dryRun) {
       console.log(formatOutput({ request: body }, format));
@@ -258,39 +258,13 @@ export default defineCommand({
     }
 
     const result = await pollTask(config, { taskId });
-
-    const urls: string[] = [];
-    for (const out of result.output ?? []) {
-      for (const c of out.content ?? []) {
-        if (c.url) urls.push(c.url);
-      }
-    }
-
-    if (urls.length === 0) {
-      console.log(formatOutput(result, format));
-      return;
-    }
-
-    if (flags.outDir) {
-      const outDir = flags.outDir as string;
-      if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-
-      const prefix = (flags.outPrefix as string) || 'video';
-      const saved: string[] = [];
-
-      for (let i = 0; i < urls.length; i++) {
-        const ext = urls[i]!.includes('.mp4') ? 'mp4' : 'mp4';
-        const filename = `${prefix}_${String(i + 1).padStart(3, '0')}.${ext}`;
-        const destPath = join(outDir, filename);
-        await downloadFile(urls[i]!, destPath, { quiet: config.quiet });
-        saved.push(destPath);
-      }
-
-      console.log(formatOutput({ task_id: taskId, saved }, format));
-    } else if (config.quiet && format === 'text') {
-      console.log(urls.join('\n'));
-    } else {
-      console.log(formatOutput({ task_id: taskId, urls }, format));
-    }
+    await printGenerationResult(config, flags, format, {
+      taskId,
+      result,
+      defaultPrefix: 'video',
+      detectExtension: () => 'mp4',
+      forceVideo: true,
+      duration: flags.duration as number | undefined,
+    });
   },
 });

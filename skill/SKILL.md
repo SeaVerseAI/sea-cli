@@ -110,6 +110,34 @@ sac generate submit --body-json '{
 
 Use `generate image / video / audio / 3d` directly only when the model and flags are already known with certainty. When in doubt, use the discovery workflow above.
 
+## Content Safety
+
+Use content safety when the user asks to review, scan, moderate, or check generated media or an existing media URL.
+
+Direct URL scan:
+
+```bash
+sac --non-interactive --quiet --output json content-safety --url https://example.com/image.webp
+sac --non-interactive --quiet --output json content-safety --url https://example.com/video.mp4 --video --duration 8
+```
+
+Post-generation scan:
+
+```bash
+sac --non-interactive --quiet --output json generate image --prompt "..." --content-safety
+sac --non-interactive --quiet --output json generate video --prompt "..." --content-safety
+sac --non-interactive --quiet --output json generate task <task-id> --wait --content-safety
+```
+
+Rules:
+
+- `--content-safety` runs after polling completes and scans returned image/video output URL(s).
+- Generated-output content safety is best-effort: failures and timeouts are returned in `safety` and must not be treated as generation failure.
+- Do not use `--content-safety` with `generate audio` or `generate 3d`; scan a concrete image/video URL with `content-safety` if needed.
+- `--content-safety` cannot be combined with `--async`; scan later with `sac generate task <task-id> --wait --content-safety`.
+- `generate task --output-only-url` cannot be combined with `--content-safety`; use structured output instead.
+- For video URLs that do not end in a common video extension, pass `--video` on `content-safety`.
+
 
 **Recommended agent prefix for structured-output commands:**
 

@@ -15,6 +15,13 @@ export function taskEndpoint(config: Config, taskId: string): string {
 }
 
 /**
+ * POST /v1/image/scan — content safety scan for image/video URLs
+ */
+export function contentSafetyEndpoint(config: Config): string {
+  return `${config.multimodalBaseUrl}/v1/image/scan`;
+}
+
+/**
  * POST /llm/v1/chat/completions — LLM chat
  */
 export function chatEndpoint(config: Config): string {
